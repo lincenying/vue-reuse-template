@@ -1,11 +1,11 @@
 import type { DefineComponent, Slot } from 'vue'
-import { defineComponent } from 'vue'
+import { defineComponent, shallowRef } from 'vue'
+import { camelize, makeDestructurable } from './utils'
 
 export type DefineTemplateComponent<
- Bindings extends object,
- Slots extends Record<string, Slot | undefined>,
- Props = {},
-> = DefineComponent<Props> & {
+  Bindings extends object,
+  Slots extends Record<string, Slot | undefined>,
+> = DefineComponent<{}> & {
   new(): { $slots: { default(_: Bindings & { $slots: Slots }): any } }
 }
 
@@ -16,60 +16,73 @@ export type ReuseTemplateComponent<
   new(): { $slots: Slots }
 }
 
+export type ReusableTemplatePair<
+  Bindings extends object,
+  Slots extends Record<string, Slot | undefined>,
+> = [
+  DefineTemplateComponent<Bindings, Slots>,
+  ReuseTemplateComponent<Bindings, Slots>,
+] & {
+  define: DefineTemplateComponent<Bindings, Slots>
+  reuse: ReuseTemplateComponent<Bindings, Slots>
+}
+
+export interface CreateReusableTemplateOptions {
+  /**
+   * Inherit attrs from reuse component.
+   *
+   * @default true
+   */
+  inheritAttrs?: boolean
+}
+
 /**
  * This function creates `define` and `reuse` components in pair,
- * that you don't need to specify the name for each.
- *
  * It also allow to pass a generic to bind with type.
+ *
+ * @see https://vueuse.org/createReusableTemplate
  */
 export function createReusableTemplate<
   Bindings extends object,
   Slots extends Record<string, Slot | undefined> = Record<string, Slot | undefined>,
->(name?: string) {
-  let render: Slot | undefined
+>(
+  options: CreateReusableTemplateOptions = {},
+): ReusableTemplatePair<Bindings, Slots> {
+  const {
+    inheritAttrs = true,
+  } = options
 
-  const define = defineComponent((_, { slots }) => {
-    return () => {
-      render = slots.default
-    }
+  const render = shallowRef<Slot | undefined>()
+
+  const define = defineComponent({
+    setup(_, { slots }) {
+      return () => {
+        render.value = slots.default
+      }
+    },
   }) as DefineTemplateComponent<Bindings, Slots>
 
   const reuse = defineComponent({
-    inheritAttrs: false,
+    inheritAttrs,
     setup(_, { attrs, slots }) {
       return () => {
-        if (!render && process.env.NODE_ENV !== 'production')
-          throw new Error(`[vue-reuse-template] Failed to find the definition of template${name ? ` "${name}"` : ''}`)
-        return render?.({ ...attrs, $slots: slots })
+        if (!render.value && process.env.NODE_ENV !== 'production')
+          throw new Error('[VueUse] Failed to find the definition of reusable template')
+        const vnode = render.value?.({ ...keysToCamelKebabCase(attrs), $slots: slots })
+        return (inheritAttrs && vnode?.length === 1) ? vnode[0] : vnode
       }
     },
   }) as ReuseTemplateComponent<Bindings, Slots>
 
   return makeDestructurable(
     { define, reuse },
-    [define, reuse] as const,
-  )
+    [define, reuse],
+  ) as any
 }
 
-/**
- * @see What the hack? https://antfu.me/posts/destructuring-with-object-or-array
- */
-function makeDestructurable<
-  T extends Record<string, unknown>,
-  A extends readonly any[],
->(obj: T, arr: A): T & A {
-  const clone = { ...obj }
-  Object.defineProperty(clone, Symbol.iterator, {
-    enumerable: false,
-    value() {
-      let index = 0
-      return {
-        next: () => ({
-          value: arr[index++],
-          done: index > arr.length,
-        }),
-      }
-    },
-  })
-  return clone as T & A
+function keysToCamelKebabCase(obj: Record<string, any>) {
+  const newObj: typeof obj = {}
+  for (const key in obj)
+    newObj[camelize(key)] = obj[key]
+  return newObj
 }
