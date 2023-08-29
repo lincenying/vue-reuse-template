@@ -39,7 +39,7 @@ In the previous example, we could refactor it to:
 
 ```html
 <script setup>
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
 </script>
@@ -71,7 +71,7 @@ When using with [Options API](https://vuejs.org/guide/introduction.html#api-styl
 ```html
 <script>
 import { defineComponent } from 'vue'
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
 
@@ -104,7 +104,7 @@ You can also pass data to the template using slots:
 
 ```html
 <script setup>
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
 </script>
@@ -126,7 +126,7 @@ const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
 
 ```html
 <script setup lang="ts">
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 // Comes with pair of `DefineTemplate` and `ReuseTemplate`
 const [DefineFoo, ReuseFoo] = createReusableTemplate<{ msg: string }>()
@@ -152,7 +152,7 @@ Optionally, if you are not a fan of array destructuring, the following usages ar
 
 ```html
 <script setup lang="ts">
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const {
   define: DefineFoo,
@@ -171,7 +171,7 @@ const {
 
 ```html
 <script setup lang="ts">
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const TemplateFoo = createReusableTemplate<{ msg: string }>()
 </script>
@@ -199,7 +199,7 @@ It's also possible to pass slots back from `<ReuseTemplate>`. You can access the
 
 ```html
 <script setup>
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
 </script>
@@ -233,7 +233,7 @@ As opposed to Vue's behavior, props defined as `boolean` that were passed withou
 
 ```html
 <script setup lang="ts">
-import { createReusableTemplate } from '@vueuse/core'
+import { createReusableTemplate } from '@lincy/vue-reuse-template'
 
 const [DefineTemplate, ReuseTemplate] = createReusableTemplate<{
   value?: boolean
@@ -270,4 +270,4 @@ Existing Vue discussions/issues about reusing template:
 Alternative Approaches:
 
 - [Vue Macros - `namedTemplate`](https://vue-macros.sxzz.moe/features/named-template.html)
-- [`unplugin-@vueuse/core`](https://github.com/liulinboyi/unplugin-@vueuse/core)
+- [`unplugin-@lincy/vue-reuse-template`](https://github.com/liulinboyi/unplugin-@lincy/vue-reuse-template)
