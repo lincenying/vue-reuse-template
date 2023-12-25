@@ -13,7 +13,6 @@ outline: deep
 
 Define and reuse template inside the component scope.
 
-
 ## Motivation
 
 It's common to have the need to reuse some part of the template. For example:

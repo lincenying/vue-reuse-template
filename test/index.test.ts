@@ -5,77 +5,78 @@ import { Fragment, defineComponent, h, renderSlot } from 'vue'
 import { createReusableTemplate } from '../src'
 
 it('should work', () => {
-  const [DefineFoo, ReuseFoo] = createReusableTemplate()
-  const [DefineBar, ReuseBar] = createReusableTemplate()
-  const Zig = createReusableTemplate()
+    const [DefineFoo, ReuseFoo] = createReusableTemplate()
+    const [DefineBar, ReuseBar] = createReusableTemplate()
+    const Zig = createReusableTemplate()
 
-  const wrapper = mount({
-    render() {
-      return h(Fragment, null, [
-        h(DefineFoo, () => ['Foo']),
-        h(ReuseFoo),
+    const wrapper = mount({
+        render() {
+            return h(Fragment, null, [
+                h(DefineFoo, () => ['Foo']),
+                h(ReuseFoo),
 
-        h(DefineBar, () => ['Bar']),
-        h(Zig.define, () => ['Zig']),
-        h(ReuseFoo),
-        h(ReuseBar),
-        h(Zig.reuse),
-      ])
-    },
-  })
+                h(DefineBar, () => ['Bar']),
+                h(Zig.define, () => ['Zig']),
+                h(ReuseFoo),
+                h(ReuseBar),
+                h(Zig.reuse),
+            ])
+        },
+    })
 
-  expect(wrapper.text()).toBe('FooFooBarZig')
+    expect(wrapper.text()).toBe('FooFooBarZig')
 })
 
 it('nested', () => {
-  const CompA = defineComponent((_, { slots }) => {
-    return () => renderSlot(slots, 'default')
-  })
+    const CompA = defineComponent((_, { slots }) => {
+        return () => renderSlot(slots, 'default')
+    })
 
-  const [DefineFoo, ReuseFoo] = createReusableTemplate()
+    const [DefineFoo, ReuseFoo] = createReusableTemplate()
 
-  const wrapper = mount({
-    render() {
-      return h(Fragment, null, [
-        h(DefineFoo, () => ['Foo']),
-        h(CompA, () => h(ReuseFoo)),
-      ])
-    },
-  })
+    const wrapper = mount({
+        render() {
+            return h(Fragment, null, [
+                h(DefineFoo, () => ['Foo']),
+                h(CompA, () => h(ReuseFoo)),
+            ])
+        },
+    })
 
-  expect(wrapper.text()).toBe('Foo')
+    expect(wrapper.text()).toBe('Foo')
 })
 
 it('props', () => {
-  const [DefineFoo, ReuseFoo] = createReusableTemplate<{ msg: string }>()
+    const [DefineFoo, ReuseFoo] = createReusableTemplate<{ msg: string }>()
 
-  const wrapper = mount({
-    render() {
-      return h(Fragment, null, [
-        h(DefineFoo, ({ $slots, ...args }: any) => h('pre', JSON.stringify(args))),
+    const wrapper = mount({
+        render() {
+            return h(Fragment, null, [
+                // eslint-disable-next-line unused-imports/no-unused-vars
+                h(DefineFoo, ({ $slots, ...args }: any) => h('pre', JSON.stringify(args))),
 
-        h(ReuseFoo, { msg: 'Foo' }),
-        h(ReuseFoo, { msg: 'Bar' }),
-      ])
-    },
-  })
+                h(ReuseFoo, { msg: 'Foo' }),
+                h(ReuseFoo, { msg: 'Bar' }),
+            ])
+        },
+    })
 
-  expect(wrapper.text()).toBe('{"msg":"Foo"}{"msg":"Bar"}')
+    expect(wrapper.text()).toBe('{"msg":"Foo"}{"msg":"Bar"}')
 })
 
 it('slots', () => {
-  const [DefineFoo, ReuseFoo] = createReusableTemplate<{ msg: string }, { default: Slot }>()
+    const [DefineFoo, ReuseFoo] = createReusableTemplate<{ msg: string }, { default: Slot }>()
 
-  const wrapper = mount({
-    render() {
-      return h(Fragment, null, [
-        h(DefineFoo, (args: any) => args.$slots.default?.()),
+    const wrapper = mount({
+        render() {
+            return h(Fragment, null, [
+                h(DefineFoo, (args: any) => args.$slots.default?.()),
 
-        h(ReuseFoo, () => h('div', 'Goodbye')),
-        h(ReuseFoo, () => h('div', 'Hi')),
-      ])
-    },
-  })
+                h(ReuseFoo, () => h('div', 'Goodbye')),
+                h(ReuseFoo, () => h('div', 'Hi')),
+            ])
+        },
+    })
 
-  expect(wrapper.text()).toBe('GoodbyeHi')
+    expect(wrapper.text()).toBe('GoodbyeHi')
 })
